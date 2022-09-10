@@ -5,6 +5,10 @@ import AppView from '../views/App/AppView.vue'
 import ProjectView from '../views/App/ProjectView.vue'
 import CompanyIndexView from '../views/App/Company/IndexView.vue'
 import CompanyCreateProjectView from '../views/App/Company/CreateProjectView.vue'
+import BackerIndexView from '../views/App/Backer/IndexView.vue'
+import BackerBackedProjectsView from '../views/App/Backer/BackedProjectsView.vue'
+import AdminIndexView from '../views/App/Admin/IndexView.vue'
+import AdminVerifyProjectView from '../views/App/Admin/VerifyProjectView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -54,6 +58,26 @@ const router = createRouter({
           path: 'dashboard/company/project/create',
           name: 'app-dashboard-company-project-create',
           component: CompanyCreateProjectView,
+        },
+        {
+          path: 'dashboard/backer',
+          name: 'app-dashboard-backer',
+          component: BackerIndexView,
+        },
+        {
+          path: 'dashboard/backer/projects/backed',
+          name: 'app-dashboard-backer-projects-backed',
+          component: BackerBackedProjectsView,
+        },
+        {
+          path: 'dashboard/admin',
+          name: 'app-dashboard-admin',
+          component: AdminIndexView,
+        },
+        {
+          path: 'dashboard/admin/project/verify',
+          name: 'app-dashboard-admin-project-verify',
+          component: AdminVerifyProjectView,
         },
       ],
     },

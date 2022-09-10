@@ -97,8 +97,7 @@ let confirmVisibility = ref(false)
               <RouterLink to="/app/dashboard/company">
                 <a
                   href="#"
-                  class="bg-gray-100 text-gray-900 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
-                  aria-current="page"
+                  class="text-gray-600 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
                 >
                   <!--
                 Heroicon name: outline/home
@@ -127,7 +126,8 @@ let confirmVisibility = ref(false)
               <RouterLink to="/app/dashboard/company/project/create">
                 <a
                   href="#"
-                  class="text-gray-600 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
+                  class="bg-gray-100 text-gray-900 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
+                  aria-current="page"
                 >
                   <!-- Heroicon name: outline/view-list -->
 
@@ -274,8 +274,7 @@ let confirmVisibility = ref(false)
             <RouterLink to="/app/dashboard/company">
               <a
                 href="#"
-                class="bg-gray-200 text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-                aria-current="page"
+                class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
               >
                 <!--
               Heroicon name: outline/home
@@ -304,7 +303,8 @@ let confirmVisibility = ref(false)
             <RouterLink to="/app/dashboard/company/project/create">
               <a
                 href="#"
-                class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+                class="bg-gray-200 text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+                aria-current="page"
               >
                 <!-- Heroicon name: outline/view-list -->
 
@@ -440,11 +440,7 @@ let confirmVisibility = ref(false)
         <div
           class="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8"
         >
-          <div class="flex-1 min-w-0">
-            <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">
-              Home
-            </h1>
-          </div>
+          <div class="flex-1 min-w-0"></div>
           <div class="mt-4 flex sm:mt-0 sm:ml-4">
             <button
               type="button"
@@ -455,7 +451,7 @@ let confirmVisibility = ref(false)
           </div>
         </div>
         <!-- All projects -->
-        <div class="px-4 mt-6 sm:px-6 lg:px-8">
+        <div class="px-4 mt-6 sm:px-6 lg:px-4">
           <h2 class="text-gray-500 text-xs font-medium uppercase tracking-wide">
             Create Project
           </h2>

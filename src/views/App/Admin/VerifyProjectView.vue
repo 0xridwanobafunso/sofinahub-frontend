@@ -19,43 +19,43 @@ let visibility = ref(false)
       v-if="visibility"
     >
       <!--
-      Off-canvas menu overlay, show/hide based on off-canvas menu state.
-
-      Entering: "transition-opacity ease-linear duration-300"
-        From: "opacity-0"
-        To: "opacity-100"
-      Leaving: "transition-opacity ease-linear duration-300"
-        From: "opacity-100"
-        To: "opacity-0"
-    -->
+                  Off-canvas menu overlay, show/hide based on off-canvas menu state.
+            
+                  Entering: "transition-opacity ease-linear duration-300"
+                    From: "opacity-0"
+                    To: "opacity-100"
+                  Leaving: "transition-opacity ease-linear duration-300"
+                    From: "opacity-100"
+                    To: "opacity-0"
+                -->
       <div
         class="fixed inset-0 bg-gray-600 bg-opacity-75"
         aria-hidden="true"
       ></div>
 
       <!--
-      Off-canvas menu, show/hide based on off-canvas menu state.
-
-      Entering: "transition ease-in-out duration-300 transform"
-        From: "-translate-x-full"
-        To: "translate-x-0"
-      Leaving: "transition ease-in-out duration-300 transform"
-        From: "translate-x-0"
-        To: "-translate-x-full"
-    -->
+                  Off-canvas menu, show/hide based on off-canvas menu state.
+            
+                  Entering: "transition ease-in-out duration-300 transform"
+                    From: "-translate-x-full"
+                    To: "translate-x-0"
+                  Leaving: "transition ease-in-out duration-300 transform"
+                    From: "translate-x-0"
+                    To: "-translate-x-full"
+                -->
       <div
         class="relative flex-1 flex flex-col max-w-xs w-full pt-5 pb-4 bg-white"
       >
         <!--
-        Close button, show/hide based on off-canvas menu state.
-
-        Entering: "ease-in-out duration-300"
-          From: "opacity-0"
-          To: "opacity-100"
-        Leaving: "ease-in-out duration-300"
-          From: "opacity-100"
-          To: "opacity-0"
-      -->
+                    Close button, show/hide based on off-canvas menu state.
+            
+                    Entering: "ease-in-out duration-300"
+                      From: "opacity-0"
+                      To: "opacity-100"
+                    Leaving: "ease-in-out duration-300"
+                      From: "opacity-100"
+                      To: "opacity-0"
+                  -->
         <div class="absolute top-0 right-0 -mr-12 pt-2">
           <button
             type="button"
@@ -93,17 +93,16 @@ let visibility = ref(false)
           <nav class="px-2">
             <div class="space-y-1">
               <!-- Current: "bg-gray-100 text-gray-900", Default: "text-gray-600 hover:text-gray-900 hover:bg-gray-50" -->
-              <RouterLink to="/app/dashboard/company">
+              <RouterLink to="/app/dashboard/admin">
                 <a
                   href="#"
-                  class="bg-gray-100 text-gray-900 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
-                  aria-current="page"
+                  class="text-gray-600 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
                 >
                   <!--
-                Heroicon name: outline/home
-
-                Current: "text-gray-500", Default: "text-gray-400 group-hover:text-gray-500"
-              -->
+                            Heroicon name: outline/home
+            
+                            Current: "text-gray-500", Default: "text-gray-400 group-hover:text-gray-500"
+                          -->
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -123,10 +122,11 @@ let visibility = ref(false)
                 </a>
               </RouterLink>
 
-              <RouterLink to="/app/dashboard/company/project/create">
+              <RouterLink to="/app/dashboard/admin/project/verify">
                 <a
                   href="#"
-                  class="text-gray-600 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
+                  class="bg-gray-100 text-gray-900 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
+                  aria-current="page"
                 >
                   <!-- Heroicon name: outline/view-list -->
 
@@ -145,32 +145,7 @@ let visibility = ref(false)
                     />
                   </svg>
 
-                  Create Project
-                </a>
-              </RouterLink>
-
-              <RouterLink to="/app/dashboard/company/project/backers">
-                <a
-                  href="#"
-                  class="text-gray-600 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
-                >
-                  <!-- Heroicon name: outline/clock -->
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="text-gray-400 group-hover:text-gray-500 mr-3 flex-shrink-0 w-5 h-5"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
-                    />
-                  </svg>
-
-                  My Backers
+                  Verify Project
                 </a>
               </RouterLink>
             </div>
@@ -271,17 +246,16 @@ let visibility = ref(false)
           <div class="space-y-1">
             <!-- Current: "bg-gray-200 text-gray-900", Default: "text-gray-700 hover:text-gray-900 hover:bg-gray-50" -->
 
-            <RouterLink to="/app/dashboard/company">
+            <RouterLink to="/app/dashboard/admin">
               <a
                 href="#"
-                class="bg-gray-200 text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-                aria-current="page"
+                class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
               >
                 <!--
-              Heroicon name: outline/home
-
-              Current: "text-gray-500", Default: "text-gray-400 group-hover:text-gray-500"
-            -->
+                          Heroicon name: outline/home
+            
+                          Current: "text-gray-500", Default: "text-gray-400 group-hover:text-gray-500"
+                        -->
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -301,10 +275,11 @@ let visibility = ref(false)
               </a>
             </RouterLink>
 
-            <RouterLink to="/app/dashboard/company/project/create">
+            <RouterLink to="/app/dashboard/admin/project/verify">
               <a
                 href="#"
-                class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+                class="bg-gray-200 text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+                aria-current="page"
               >
                 <!-- Heroicon name: outline/view-list -->
 
@@ -323,33 +298,7 @@ let visibility = ref(false)
                   />
                 </svg>
 
-                Create Project
-              </a>
-            </RouterLink>
-
-            <RouterLink to="/app/dashboard/company/project/backers">
-              <a
-                href="#"
-                class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-              >
-                <!-- Heroicon name: outline/clock -->
-
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="text-gray-400 group-hover:text-gray-500 mr-3 flex-shrink-0 w-5 h-5"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
-                  />
-                </svg>
-
-                My Backers
+                Verify Project
               </a>
             </RouterLink>
           </div>
@@ -425,10 +374,10 @@ let visibility = ref(false)
                 >
                   <span class="sr-only">Open user menu</span>
                   <!-- <img
-                    class="h-8 w-8 rounded-full"
-                    src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                    alt=""
-                  /> -->
+                                class="h-8 w-8 rounded-full"
+                                src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                                alt=""
+                              /> -->
                 </button>
               </div>
             </div>
@@ -448,25 +397,19 @@ let visibility = ref(false)
             >
               Disconnect
             </button>
-            <RouterLink
-              to="/app/dashboard/company/project/create"
-              class="order-0 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:order-1 sm:ml-3"
-            >
-              Create
-            </RouterLink>
           </div>
         </div>
         <!-- My projects -->
         <div class="px-4 mt-6 sm:px-6 lg:px-4">
           <h2 class="text-gray-500 text-xs font-medium uppercase tracking-wide">
-            My Project
+            Verify Project
           </h2>
           <div class="bg-white">
             <div class="max-w-2xl mx-auto pb-5 lg:max-w-7xl">
               <div
                 class="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-2 xl:grid-cols-3"
               >
-                <ProjectCard v-for="project of 4" :key="project" />
+                <!-- <ProjectCard v-for="project of 4" :key="project" /> -->
               </div>
             </div>
           </div>
