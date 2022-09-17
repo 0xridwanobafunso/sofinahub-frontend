@@ -1,13 +1,87 @@
 <script setup>
-import { useRoute } from 'vue-router'
-import { ref, watchEffect } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ref, watchEffect, reactive } from 'vue'
+import useVuelidate from '@vuelidate/core'
+import {
+  required,
+  numeric,
+  decimal,
+  between,
+  minLength,
+  maxLength,
+} from '@vuelidate/validators'
+import { useAppStore } from '../../../stores/app'
 
 const route = useRoute()
 watchEffect(() => route.name)
+watchEffect(() => route.query)
+
+const router = useRouter()
+
+let store = useAppStore()
 
 let visibility = ref(false)
-
 let confirmVisibility = ref(false)
+
+let input = reactive({
+  project: {
+    title: '',
+    description: '',
+    goal: '',
+    deadline: '',
+    imageSources: '',
+    videoSources: '',
+    documentSources: '',
+  },
+  token: {
+    name: '',
+    symbol: '',
+    decimal: 0,
+    totalSupply: 0,
+  },
+  roi: {
+    roi: 0,
+    duration: '',
+  },
+})
+
+const rules = {
+  project: {
+    title: { required },
+    description: { required },
+    goal: { required, decimal },
+    deadline: { required },
+    imageSources: { required },
+    videoSources: { required },
+    documentSources: { required },
+  },
+  token: {
+    name: { required },
+    symbol: { required, minLength: minLength(3), maxLength: maxLength(4) },
+    decimal: { required, numeric, between: between(0, 18) },
+    totalSupply: { required, numeric },
+  },
+  roi: {
+    roi: { required, numeric },
+    duration: { required },
+  },
+}
+
+const v$ = useVuelidate(rules, input)
+
+function validate() {
+  v$.value.$touch()
+
+  if (v$.value.$errors.length == 0) {
+    return true
+  } else return false
+}
+
+async function create(input) {
+  let res = await store.createProject(input)
+
+  return res
+}
 </script>
 
 <template>
@@ -150,7 +224,7 @@ let confirmVisibility = ref(false)
                 </a>
               </RouterLink>
 
-              <RouterLink to="/app/dashboard/company/project/backers">
+              <RouterLink to="/app/dashboard/company/project/deposit">
                 <a
                   href="#"
                   class="text-gray-600 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
@@ -171,7 +245,7 @@ let confirmVisibility = ref(false)
                     />
                   </svg>
 
-                  My Backers
+                  Deposit
                 </a>
               </RouterLink>
             </div>
@@ -244,9 +318,9 @@ let confirmVisibility = ref(false)
                     <span class="text-gray-900 text-sm font-medium truncate"
                       >Ethereum Network</span
                     >
-                    <span class="text-gray-500 text-sm truncate"
-                      >0x0068Dfb05741A0F61aF947332fa6c7fc7c4928fe</span
-                    >
+                    <span class="text-gray-500 text-sm truncate">{{
+                      store._wallet.address
+                    }}</span>
                   </span>
                 </span>
                 <!-- Heroicon name: solid/selector -->
@@ -327,7 +401,7 @@ let confirmVisibility = ref(false)
               </a>
             </RouterLink>
 
-            <RouterLink to="/app/dashboard/company/project/backers">
+            <RouterLink to="/app/dashboard/company/project/deposit">
               <a
                 href="#"
                 class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
@@ -349,7 +423,7 @@ let confirmVisibility = ref(false)
                   />
                 </svg>
 
-                My Backers
+                Deposit
               </a>
             </RouterLink>
           </div>
@@ -457,6 +531,30 @@ let confirmVisibility = ref(false)
           </h2>
 
           <div class="mt-10 sm:mt-8">
+            <div
+              class="flex p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800"
+              role="alert"
+              v-if="route.query['error-detail'] == 'project-created'"
+            >
+              <svg
+                aria-hidden="true"
+                class="flex-shrink-0 inline w-5 h-5 mr-3"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+              <span class="sr-only">Info</span>
+              <div>
+                <span class="font-medium">Failed!</span> Error occured while
+                creating new project.
+              </div>
+            </div>
             <div class="md:grid md:grid-cols-3 md:gap-6">
               <div class="md:col-span-1">
                 <div class="px-4 sm:px-0">
@@ -475,116 +573,244 @@ let confirmVisibility = ref(false)
                     <div class="px-4 py-5 bg-white sm:p-6">
                       <div class="grid grid-cols-6 gap-6">
                         <div class="col-span-6 sm:col-span-4">
-                          <label
-                            for="title"
-                            class="block text-sm font-medium text-gray-700"
+                          <label class="block text-sm font-medium text-gray-700"
                             >Title</label
                           >
                           <input
                             type="text"
                             placeholder="Duplex Building At Ajah Lagos, Nigeria"
-                            autocomplete="title"
                             class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            v-model="input.project.title"
+                            :class="
+                              v$.project.title.$errors.length > 0
+                                ? 'focus:ring-red-500 focus:border-red-500'
+                                : 'focus:ring-indigo-500 focus:border-indigo-500'
+                            "
+                            @blur="v$.project.title.$touch()"
                           />
+
+                          <div
+                            class="mt-1 text-red-600 text-sm"
+                            v-for="error of v$.project.title.$errors"
+                            :key="error.$uid"
+                          >
+                            {{
+                              error.$message
+                                .toLowerCase()
+                                .replace(
+                                  'value',
+                                  error.$property.charAt(0).toUpperCase() +
+                                    error.$property.slice(1)
+                                )
+                            }}
+                          </div>
                         </div>
 
                         <div class="col-span-6">
-                          <label
-                            for="street-address"
-                            class="block text-sm font-medium text-gray-700"
+                          <label class="block text-sm font-medium text-gray-700"
                             >Description</label
                           >
                           <textarea
                             type="text"
-                            name="street-address"
-                            id="street-address"
-                            autocomplete="street-address"
                             placeholder="Describe your project here"
                             class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                             rows="4"
+                            v-model="input.project.description"
+                            :class="
+                              v$.project.description.$errors.length > 0
+                                ? 'focus:ring-red-500 focus:border-red-500'
+                                : 'focus:ring-indigo-500 focus:border-indigo-500'
+                            "
+                            @blur="v$.project.description.$touch()"
                           ></textarea>
+
+                          <div
+                            class="mt-1 text-red-600 text-sm"
+                            v-for="error of v$.project.description.$errors"
+                            :key="error.$uid"
+                          >
+                            {{
+                              error.$message
+                                .toLowerCase()
+                                .replace(
+                                  'value',
+                                  error.$property.charAt(0).toUpperCase() +
+                                    error.$property.slice(1)
+                                )
+                            }}
+                          </div>
                         </div>
 
                         <div class="col-span-6 sm:col-span-3">
-                          <label
-                            for="first-name"
-                            class="block text-sm font-medium text-gray-700"
+                          <label class="block text-sm font-medium text-gray-700"
                             >Goal (in ETH)</label
                           >
                           <input
                             type="text"
-                            name="first-name"
-                            id="first-name"
-                            autocomplete="given-name"
                             placeholder="5.4"
                             class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            v-model="input.project.goal"
+                            :class="
+                              v$.project.goal.$errors.length > 0
+                                ? 'focus:ring-red-500 focus:border-red-500'
+                                : 'focus:ring-indigo-500 focus:border-indigo-500'
+                            "
+                            @blur="v$.project.goal.$touch()"
                           />
+
+                          <div
+                            class="mt-1 text-red-600 text-sm"
+                            v-for="error of v$.project.goal.$errors"
+                            :key="error.$uid"
+                          >
+                            {{
+                              error.$message
+                                .toLowerCase()
+                                .replace(
+                                  'value',
+                                  error.$property.charAt(0).toUpperCase() +
+                                    error.$property.slice(1)
+                                )
+                            }}
+                          </div>
                         </div>
 
                         <div class="col-span-6 sm:col-span-3">
-                          <label
-                            for="last-name"
-                            class="block text-sm font-medium text-gray-700"
+                          <label class="block text-sm font-medium text-gray-700"
                             >Deadline</label
                           >
                           <input
-                            type="date"
-                            name="last-name"
-                            id="last-name"
-                            autocomplete="family-name"
+                            type="datetime-local"
                             class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            v-model="input.project.deadline"
+                            :class="
+                              v$.project.deadline.$errors.length > 0
+                                ? 'focus:ring-red-500 focus:border-red-500'
+                                : 'focus:ring-indigo-500 focus:border-indigo-500'
+                            "
+                            @blur="v$.project.deadline.$touch()"
                           />
+
+                          <div
+                            class="mt-1 text-red-600 text-sm"
+                            v-for="error of v$.project.deadline.$errors"
+                            :key="error.$uid"
+                          >
+                            {{
+                              error.$message
+                                .toLowerCase()
+                                .replace(
+                                  'value',
+                                  error.$property.charAt(0).toUpperCase() +
+                                    error.$property.slice(1)
+                                )
+                            }}
+                          </div>
                         </div>
 
                         <div class="col-span-6">
-                          <label
-                            for="image-sources"
-                            class="block text-sm font-medium text-gray-700"
+                          <label class="block text-sm font-medium text-gray-700"
                             >Image source(s)</label
                           >
                           <textarea
                             type="text"
-                            name="image-sources"
-                            id="image-sources"
-                            autocomplete="street-address"
                             placeholder="Image sources seperated by comma"
                             rows="3"
                             class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            v-model="input.project.imageSources"
+                            :class="
+                              v$.project.imageSources.$errors.length > 0
+                                ? 'focus:ring-red-500 focus:border-red-500'
+                                : 'focus:ring-indigo-500 focus:border-indigo-500'
+                            "
+                            @blur="v$.project.imageSources.$touch()"
                           ></textarea>
+
+                          <div
+                            class="mt-1 text-red-600 text-sm"
+                            v-for="error of v$.project.imageSources.$errors"
+                            :key="error.$uid"
+                          >
+                            {{
+                              error.$message
+                                .toLowerCase()
+                                .replace(
+                                  'value',
+                                  error.$property.charAt(0).toUpperCase() +
+                                    error.$property.slice(1)
+                                )
+                            }}
+                          </div>
                         </div>
 
                         <div class="col-span-6">
-                          <label
-                            for="video-sources"
-                            class="block text-sm font-medium text-gray-700"
+                          <label class="block text-sm font-medium text-gray-700"
                             >Video source(s)</label
                           >
                           <textarea
                             type="text"
-                            name="video-sources"
-                            id="video-sources"
-                            autocomplete="video-sources"
                             placeholder="Video sources seperated by comma"
                             rows="3"
                             class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            v-model="input.project.videoSources"
+                            :class="
+                              v$.project.videoSources.$errors.length > 0
+                                ? 'focus:ring-red-500 focus:border-red-500'
+                                : 'focus:ring-indigo-500 focus:border-indigo-500'
+                            "
+                            @blur="v$.project.videoSources.$touch()"
                           ></textarea>
+
+                          <div
+                            class="mt-1 text-red-600 text-sm"
+                            v-for="error of v$.project.videoSources.$errors"
+                            :key="error.$uid"
+                          >
+                            {{
+                              error.$message
+                                .toLowerCase()
+                                .replace(
+                                  'value',
+                                  error.$property.charAt(0).toUpperCase() +
+                                    error.$property.slice(1)
+                                )
+                            }}
+                          </div>
                         </div>
 
                         <div class="col-span-6">
-                          <label
-                            for="document-sources"
-                            class="block text-sm font-medium text-gray-700"
+                          <label class="block text-sm font-medium text-gray-700"
                             >Document source(s)</label
                           >
                           <textarea
                             type="text"
-                            name="document-sources"
-                            id="document-sources"
-                            autocomplete="document-sources"
                             placeholder="Document sources seperated by comma"
                             rows="3"
                             class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            v-model="input.project.documentSources"
+                            :class="
+                              v$.project.documentSources.$errors.length > 0
+                                ? 'focus:ring-red-500 focus:border-red-500'
+                                : 'focus:ring-indigo-500 focus:border-indigo-500'
+                            "
+                            @blur="v$.project.documentSources.$touch()"
                           ></textarea>
+
+                          <div
+                            class="mt-1 text-red-600 text-sm"
+                            v-for="error of v$.project.documentSources.$errors"
+                            :key="error.$uid"
+                          >
+                            {{
+                              error.$message
+                                .toLowerCase()
+                                .replace(
+                                  'value',
+                                  error.$property.charAt(0).toUpperCase() +
+                                    error.$property.slice(1)
+                                )
+                            }}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -619,59 +845,139 @@ let confirmVisibility = ref(false)
                     <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
                       <div class="grid grid-cols-3 gap-6">
                         <div class="col-span-6 sm:col-span-4">
-                          <label
-                            for="title"
-                            class="block text-sm font-medium text-gray-700"
+                          <label class="block text-sm font-medium text-gray-700"
                             >Token name</label
                           >
                           <input
                             type="text"
                             placeholder="BAT Coin"
-                            autocomplete="title"
                             class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            v-model="input.token.name"
+                            :class="
+                              v$.token.name.$errors.length > 0
+                                ? 'focus:ring-red-500 focus:border-red-500'
+                                : 'focus:ring-indigo-500 focus:border-indigo-500'
+                            "
+                            @blur="v$.token.name.$touch()"
                           />
+
+                          <div
+                            class="mt-1 text-red-600 text-sm"
+                            v-for="error of v$.token.name.$errors"
+                            :key="error.$uid"
+                          >
+                            {{
+                              error.$message
+                                .toLowerCase()
+                                .replace(
+                                  'value',
+                                  error.$property.charAt(0).toUpperCase() +
+                                    error.$property.slice(1)
+                                )
+                            }}
+                          </div>
                         </div>
 
                         <div class="col-span-6 sm:col-span-4">
-                          <label
-                            for="title"
-                            class="block text-sm font-medium text-gray-700"
+                          <label class="block text-sm font-medium text-gray-700"
                             >Token symbol</label
                           >
                           <input
                             type="text"
                             placeholder="BATC"
-                            autocomplete="title"
                             class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            v-model="input.token.symbol"
+                            :class="
+                              v$.token.symbol.$errors.length > 0
+                                ? 'focus:ring-red-500 focus:border-red-500'
+                                : 'focus:ring-indigo-500 focus:border-indigo-500'
+                            "
+                            @blur="v$.token.symbol.$touch()"
                           />
+
+                          <div
+                            class="mt-1 text-red-600 text-sm"
+                            v-for="error of v$.token.symbol.$errors"
+                            :key="error.$uid"
+                          >
+                            {{
+                              error.$message
+                                .toLowerCase()
+                                .replace(
+                                  'value',
+                                  error.$property.charAt(0).toUpperCase() +
+                                    error.$property.slice(1)
+                                )
+                            }}
+                          </div>
                         </div>
 
                         <div class="col-span-6 sm:col-span-4">
-                          <label
-                            for="title"
-                            class="block text-sm font-medium text-gray-700"
+                          <label class="block text-sm font-medium text-gray-700"
                             >Token decimal</label
                           >
                           <input
                             type="number"
                             placeholder="4"
-                            autocomplete="title"
                             class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            v-model="input.token.decimal"
+                            :class="
+                              v$.token.decimal.$errors.length > 0
+                                ? 'focus:ring-red-500 focus:border-red-500'
+                                : 'focus:ring-indigo-500 focus:border-indigo-500'
+                            "
+                            @blur="v$.token.decimal.$touch()"
                           />
+
+                          <div
+                            class="mt-1 text-red-600 text-sm"
+                            v-for="error of v$.token.decimal.$errors"
+                            :key="error.$uid"
+                          >
+                            {{
+                              error.$message
+                                .toLowerCase()
+                                .replace(
+                                  'value',
+                                  error.$property.charAt(0).toUpperCase() +
+                                    error.$property.slice(1)
+                                )
+                            }}
+                          </div>
                         </div>
 
                         <div class="col-span-6 sm:col-span-4">
-                          <label
-                            for="title"
-                            class="block text-sm font-medium text-gray-700"
+                          <label class="block text-sm font-medium text-gray-700"
                             >Token total supply</label
                           >
                           <input
                             type="number"
                             placeholder="10000"
-                            autocomplete="title"
                             class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            v-model="input.token.totalSupply"
+                            :class="
+                              v$.token.totalSupply.$errors.length > 0
+                                ? 'focus:ring-red-500 focus:border-red-500'
+                                : 'focus:ring-indigo-500 focus:border-indigo-500'
+                            "
+                            @blur="v$.token.totalSupply.$touch()"
                           />
+
+                          <div
+                            class="mt-1 text-red-600 text-sm"
+                            v-for="error of v$.token.totalSupply.$errors"
+                            :key="error.$uid"
+                          >
+                            {{
+                              error.$message
+                                .toLowerCase()
+                                .replace(
+                                  'value',
+                                  error.$property.charAt(0).toUpperCase() +
+                                    error.$property.slice(1)
+                                )
+                            }}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -706,37 +1012,82 @@ let confirmVisibility = ref(false)
                     <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
                       <div class="grid grid-cols-3 gap-6">
                         <div class="col-span-6 sm:col-span-4">
-                          <label
-                            for="title"
-                            class="block text-sm font-medium text-gray-700"
+                          <label class="block text-sm font-medium text-gray-700"
                             >ROI (in %)</label
                           >
                           <input
                             type="number"
                             placeholder="4"
-                            autocomplete="title"
                             class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            v-model="input.roi.roi"
+                            :class="
+                              v$.roi.roi.$errors.length > 0
+                                ? 'focus:ring-red-500 focus:border-red-500'
+                                : 'focus:ring-indigo-500 focus:border-indigo-500'
+                            "
+                            @blur="v$.roi.roi.$touch()"
                           />
+
+                          <div
+                            class="mt-1 text-red-600 text-sm"
+                            v-for="error of v$.roi.roi.$errors"
+                            :key="error.$uid"
+                          >
+                            {{
+                              error.$message
+                                .toLowerCase()
+                                .replace(
+                                  'value',
+                                  error.$property.charAt(0).toUpperCase() +
+                                    error.$property.slice(1)
+                                )
+                            }}
+                          </div>
                         </div>
 
                         <div class="col-span-6 sm:col-span-4">
-                          <label
-                            for="title"
-                            class="block text-sm font-medium text-gray-700"
+                          <label class="block text-sm font-medium text-gray-700"
                             >ROI Duration</label
                           >
                           <input
-                            type="date"
+                            type="datetime-local"
                             placeholder="4"
-                            autocomplete="title"
                             class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            v-model="input.roi.duration"
+                            :class="
+                              v$.roi.duration.$errors.length > 0
+                                ? 'focus:ring-red-500 focus:border-red-500'
+                                : 'focus:ring-indigo-500 focus:border-indigo-500'
+                            "
+                            @blur="v$.roi.duration.$touch()"
                           />
+
+                          <div
+                            class="mt-1 text-red-600 text-sm"
+                            v-for="error of v$.roi.duration.$errors"
+                            :key="error.$uid"
+                          >
+                            {{
+                              error.$message
+                                .toLowerCase()
+                                .replace(
+                                  'value',
+                                  error.$property.charAt(0).toUpperCase() +
+                                    error.$property.slice(1)
+                                )
+                            }}
+                          </div>
                         </div>
                       </div>
                     </div>
+
                     <div class="px-4 py-3 text-right sm:px-6">
                       <button
-                        @click.prevent="confirmVisibility = true"
+                        @click.prevent="
+                          validate()
+                            ? (confirmVisibility = true)
+                            : (confirmVisibility = false)
+                        "
                         class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       >
                         Create Project
@@ -836,6 +1187,20 @@ let confirmVisibility = ref(false)
           <button
             type="button"
             class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+            @click="
+              create(input).then((res) => {
+                if (res) {
+                  router.push(
+                    '/app/dashboard/company?success-detail=project-created'
+                  )
+                } else {
+                  router.push(
+                    '/app/dashboard/company/project/create?error-detail=project-created'
+                  )
+                  confirmVisibility = false
+                }
+              })
+            "
           >
             Yes, Create Project
           </button>

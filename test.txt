@@ -1,0 +1,22 @@
+{{ data.data[0][0] }} properties fundingGoal
+{{ data.data[0][1] }} properties deadline
+{{ data.data[0][2] }} properties title
+{{ data.data[0][3] }} properties description
+{{ data.data[0][4] }} properties creator
+{{ data.data[0][5] }} properties images  - array
+{{ data.data[0][6] }} properties videos  - array
+{{ data.data[0][7] }} properties documents  - array
+{{ data.data[0][8] }} properties roi
+{{ data.data[0][9] }} properties roiDuration
+{{ data.data[0][10] }} properties tokenName
+{{ data.data[0][11] }} properties tokenSymbol
+{{ data.data[0][12] }} properties tokenDecimal
+{{ data.data[0][13] }} properties tokenTotalSupply
+{{ data.data[0][14] }} properties tokenAddress
+{{ data.data[0][15] }} project verified? 
+
+{{ data.data[1] }} totalFunding
+{{ data.data[2] }} contributionsCount
+{{ data.data[3] }} contributorsCount
+{{ data.data[4] }} sofinaHub
+{{ data.data[5] }} address(this) -> project address 

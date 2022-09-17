@@ -1,7 +1,6 @@
 <script setup>
 import { useRoute } from 'vue-router'
-import { ref, watchEffect, onBeforeMount } from 'vue'
-import ProjectCard from '../../../components/ProjectCard.vue'
+import { ref, watchEffect } from 'vue'
 import { useAppStore } from '../../../stores/app'
 
 const route = useRoute()
@@ -10,10 +9,6 @@ watchEffect(() => route.name)
 let visibility = ref(false)
 
 let store = useAppStore()
-
-onBeforeMount(async () => {
-  if (store._projects.data.length == 0) await store.getProjectsForGuest()
-})
 </script>
 
 <template>
@@ -26,43 +21,43 @@ onBeforeMount(async () => {
       v-if="visibility"
     >
       <!--
-              Off-canvas menu overlay, show/hide based on off-canvas menu state.
-        
-              Entering: "transition-opacity ease-linear duration-300"
-                From: "opacity-0"
-                To: "opacity-100"
-              Leaving: "transition-opacity ease-linear duration-300"
-                From: "opacity-100"
-                To: "opacity-0"
-            -->
+                Off-canvas menu overlay, show/hide based on off-canvas menu state.
+          
+                Entering: "transition-opacity ease-linear duration-300"
+                  From: "opacity-0"
+                  To: "opacity-100"
+                Leaving: "transition-opacity ease-linear duration-300"
+                  From: "opacity-100"
+                  To: "opacity-0"
+              -->
       <div
         class="fixed inset-0 bg-gray-600 bg-opacity-75"
         aria-hidden="true"
       ></div>
 
       <!--
-              Off-canvas menu, show/hide based on off-canvas menu state.
-        
-              Entering: "transition ease-in-out duration-300 transform"
-                From: "-translate-x-full"
-                To: "translate-x-0"
-              Leaving: "transition ease-in-out duration-300 transform"
-                From: "translate-x-0"
-                To: "-translate-x-full"
-            -->
+                Off-canvas menu, show/hide based on off-canvas menu state.
+          
+                Entering: "transition ease-in-out duration-300 transform"
+                  From: "-translate-x-full"
+                  To: "translate-x-0"
+                Leaving: "transition ease-in-out duration-300 transform"
+                  From: "translate-x-0"
+                  To: "-translate-x-full"
+              -->
       <div
         class="relative flex-1 flex flex-col max-w-xs w-full pt-5 pb-4 bg-white"
       >
         <!--
-                Close button, show/hide based on off-canvas menu state.
-        
-                Entering: "ease-in-out duration-300"
-                  From: "opacity-0"
-                  To: "opacity-100"
-                Leaving: "ease-in-out duration-300"
-                  From: "opacity-100"
-                  To: "opacity-0"
-              -->
+                  Close button, show/hide based on off-canvas menu state.
+          
+                  Entering: "ease-in-out duration-300"
+                    From: "opacity-0"
+                    To: "opacity-100"
+                  Leaving: "ease-in-out duration-300"
+                    From: "opacity-100"
+                    To: "opacity-0"
+                -->
         <div class="absolute top-0 right-0 -mr-12 pt-2">
           <button
             type="button"
@@ -100,17 +95,16 @@ onBeforeMount(async () => {
           <nav class="px-2">
             <div class="space-y-1">
               <!-- Current: "bg-gray-100 text-gray-900", Default: "text-gray-600 hover:text-gray-900 hover:bg-gray-50" -->
-              <RouterLink to="/app/dashboard/admin">
+              <RouterLink to="/app/dashboard/backer">
                 <a
                   href="#"
-                  class="bg-gray-100 text-gray-900 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
-                  aria-current="page"
+                  class="text-gray-600 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
                 >
                   <!--
-                        Heroicon name: outline/home
-        
-                        Current: "text-gray-500", Default: "text-gray-400 group-hover:text-gray-500"
-                      -->
+                          Heroicon name: outline/home
+          
+                          Current: "text-gray-500", Default: "text-gray-400 group-hover:text-gray-500"
+                        -->
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -130,7 +124,7 @@ onBeforeMount(async () => {
                 </a>
               </RouterLink>
 
-              <RouterLink to="/app/dashboard/admin/project/verify">
+              <RouterLink to="/app/dashboard/backer/projects/backed">
                 <a
                   href="#"
                   class="text-gray-600 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
@@ -152,7 +146,58 @@ onBeforeMount(async () => {
                     />
                   </svg>
 
-                  Verify Project
+                  Backed Projects
+                </a>
+              </RouterLink>
+
+              <RouterLink to="/app/dashboard/backer/projects/refund">
+                <a
+                  href="#"
+                  class="text-gray-600 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
+                >
+                  <!-- Heroicon name: outline/view-list -->
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="text-gray-400 group-hover:text-gray-500 mr-3 flex-shrink-0 w-5 h-5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"
+                    />
+                  </svg>
+
+                  Ask For Refund
+                </a>
+              </RouterLink>
+
+              <RouterLink to="/app/dashboard/backer/projects/claim">
+                <a
+                  href="#"
+                  class="bg-gray-100 text-gray-900 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
+                  aria-current="page"
+                >
+                  <!-- Heroicon name: outline/view-list -->
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="text-gray-400 group-hover:text-gray-500 mr-3 flex-shrink-0 w-5 h-5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"
+                    />
+                  </svg>
+
+                  Claim
                 </a>
               </RouterLink>
             </div>
@@ -253,17 +298,16 @@ onBeforeMount(async () => {
           <div class="space-y-1">
             <!-- Current: "bg-gray-200 text-gray-900", Default: "text-gray-700 hover:text-gray-900 hover:bg-gray-50" -->
 
-            <RouterLink to="/app/dashboard/admin">
+            <RouterLink to="/app/dashboard/backer">
               <a
                 href="#"
-                class="bg-gray-200 text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-                aria-current="page"
+                class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
               >
                 <!--
-                      Heroicon name: outline/home
-        
-                      Current: "text-gray-500", Default: "text-gray-400 group-hover:text-gray-500"
-                    -->
+                        Heroicon name: outline/home
+          
+                        Current: "text-gray-500", Default: "text-gray-400 group-hover:text-gray-500"
+                      -->
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -283,7 +327,7 @@ onBeforeMount(async () => {
               </a>
             </RouterLink>
 
-            <RouterLink to="/app/dashboard/admin/project/verify">
+            <RouterLink to="/app/dashboard/backer/projects/backed">
               <a
                 href="#"
                 class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
@@ -305,7 +349,58 @@ onBeforeMount(async () => {
                   />
                 </svg>
 
-                Verify Project
+                Backed Projects
+              </a>
+            </RouterLink>
+
+            <RouterLink to="/app/dashboard/backer/projects/refund">
+              <a
+                href="#"
+                class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+              >
+                <!-- Heroicon name: outline/view-list -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="text-gray-400 group-hover:text-gray-500 mr-3 flex-shrink-0 w-5 h-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"
+                  />
+                </svg>
+
+                Ask For Refund
+              </a>
+            </RouterLink>
+
+            <RouterLink to="/app/dashboard/backer/projects/claim">
+              <a
+                href="#"
+                class="bg-gray-200 text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+                aria-current="page"
+              >
+                <!-- Heroicon name: outline/view-list -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="text-gray-400 group-hover:text-gray-500 mr-3 flex-shrink-0 w-5 h-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"
+                  />
+                </svg>
+
+                Claim
               </a>
             </RouterLink>
           </div>
@@ -381,10 +476,10 @@ onBeforeMount(async () => {
                 >
                   <span class="sr-only">Open user menu</span>
                   <!-- <img
-                            class="h-8 w-8 rounded-full"
-                            src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                            alt=""
-                          /> -->
+                              class="h-8 w-8 rounded-full"
+                              src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                              alt=""
+                            /> -->
                 </button>
               </div>
             </div>
@@ -404,75 +499,14 @@ onBeforeMount(async () => {
             >
               Disconnect
             </button>
-            <RouterLink
-              to="/app/dashboard/admin/project/verify"
-              class="order-0 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:order-1 sm:ml-3"
-            >
-              Verify
-            </RouterLink>
           </div>
         </div>
         <!-- My projects -->
         <div class="px-4 mt-6 sm:px-6 lg:px-4">
           <h2 class="text-gray-500 text-xs font-medium uppercase tracking-wide">
-            All Project
+            Claim Your Capital And Interest
           </h2>
-          <div class="bg-white">
-            <div class="max-w-2xl mx-auto pb-5 lg:max-w-7xl">
-              <div
-                class="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-2 xl:grid-cols-3"
-                v-if="store._projects.total > 0"
-              >
-                <ProjectCard
-                  v-for="project of store._projects.data"
-                  :data="project"
-                  :key="project"
-                />
-              </div>
-              <div class="mt-8" v-else>
-                <i class="text-gray-900"
-                  >Loading or no data connection or no project yet. Thanks</i
-                >
-                <div
-                  class="bg-white p-2 sm:p-4 sm:h-64 rounded-2xl shadow-lg flex flex-col sm:flex-row gap-5 select-none"
-                >
-                  <div
-                    class="h-52 sm:h-full sm:w-72 rounded-xl bg-gray-200 animate-pulse"
-                  ></div>
-                  <div class="flex flex-col flex-1 gap-5 sm:p-2">
-                    <div class="flex flex-1 flex-col gap-3">
-                      <div
-                        class="bg-gray-200 w-full animate-pulse h-14 rounded-2xl"
-                      ></div>
-                      <div
-                        class="bg-gray-200 w-full animate-pulse h-3 rounded-2xl"
-                      ></div>
-                      <div
-                        class="bg-gray-200 w-full animate-pulse h-3 rounded-2xl"
-                      ></div>
-                      <div
-                        class="bg-gray-200 w-full animate-pulse h-3 rounded-2xl"
-                      ></div>
-                      <div
-                        class="bg-gray-200 w-full animate-pulse h-3 rounded-2xl"
-                      ></div>
-                    </div>
-                    <div class="mt-auto flex gap-3">
-                      <div
-                        class="bg-gray-200 w-20 h-8 animate-pulse rounded-full"
-                      ></div>
-                      <div
-                        class="bg-gray-200 w-20 h-8 animate-pulse rounded-full"
-                      ></div>
-                      <div
-                        class="bg-gray-200 w-20 h-8 animate-pulse rounded-full ml-auto"
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <div class="bg-white"></div>
         </div>
       </main>
     </div>

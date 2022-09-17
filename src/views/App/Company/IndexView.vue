@@ -1,12 +1,24 @@
 <script setup>
 import { useRoute } from 'vue-router'
-import { ref, watchEffect } from 'vue'
+import { ref, watchEffect, onBeforeMount } from 'vue'
 import ProjectCard from '../../../components/ProjectCard.vue'
+import { useAppStore } from '../../../stores/app'
 
 const route = useRoute()
 watchEffect(() => route.name)
+watchEffect(() => route.query)
 
 let visibility = ref(false)
+
+let store = useAppStore()
+
+onBeforeMount(async () => {
+  if (
+    store._wallet.company.projects.total == 0 ||
+    route.query['success-detail'] == 'project-created'
+  )
+    await store.getProjectsForCompany()
+})
 </script>
 
 <template>
@@ -149,7 +161,7 @@ let visibility = ref(false)
                 </a>
               </RouterLink>
 
-              <RouterLink to="/app/dashboard/company/project/backers">
+              <RouterLink to="/app/dashboard/company/project/deposit">
                 <a
                   href="#"
                   class="text-gray-600 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
@@ -170,7 +182,7 @@ let visibility = ref(false)
                     />
                   </svg>
 
-                  My Backers
+                  Deposit
                 </a>
               </RouterLink>
             </div>
@@ -243,9 +255,9 @@ let visibility = ref(false)
                     <span class="text-gray-900 text-sm font-medium truncate"
                       >Ethereum Network</span
                     >
-                    <span class="text-gray-500 text-sm truncate"
-                      >0x0068Dfb05741A0F61aF947332fa6c7fc7c4928fe</span
-                    >
+                    <span class="text-gray-500 text-sm truncate">{{
+                      store._wallet.address
+                    }}</span>
                   </span>
                 </span>
                 <!-- Heroicon name: solid/selector -->
@@ -327,7 +339,7 @@ let visibility = ref(false)
               </a>
             </RouterLink>
 
-            <RouterLink to="/app/dashboard/company/project/backers">
+            <RouterLink to="/app/dashboard/company/project/deposit">
               <a
                 href="#"
                 class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
@@ -349,7 +361,7 @@ let visibility = ref(false)
                   />
                 </svg>
 
-                My Backers
+                Deposit
               </a>
             </RouterLink>
           </div>
@@ -458,15 +470,95 @@ let visibility = ref(false)
         </div>
         <!-- My projects -->
         <div class="px-4 mt-6 sm:px-6 lg:px-4">
-          <h2 class="text-gray-500 text-xs font-medium uppercase tracking-wide">
+          <div
+            class="flex p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg dark:bg-green-200 dark:text-green-800"
+            role="alert"
+            v-if="route.query['success-detail'] == 'project-created'"
+          >
+            <svg
+              aria-hidden="true"
+              class="flex-shrink-0 inline w-5 h-5 mr-3"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+            <span class="sr-only">Info</span>
+            <div>
+              <span class="font-medium">Success!</span> You've created the
+              project successfully.
+              <RouterLink
+                to="/app/dashboard/company"
+                class="font-bold underline"
+                >Okay</RouterLink
+              >
+            </div>
+          </div>
+
+          <h2
+            class="mt-5 text-gray-500 text-xs font-medium uppercase tracking-wide"
+          >
             My Project
           </h2>
+
           <div class="bg-white">
             <div class="max-w-2xl mx-auto pb-5 lg:max-w-7xl">
               <div
                 class="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-2 xl:grid-cols-3"
+                v-if="store._wallet.company.projects.total > 0"
               >
-                <ProjectCard v-for="project of 4" :key="project" />
+                <ProjectCard
+                  v-for="project of store._wallet.company.projects.data"
+                  :data="project"
+                  :key="project"
+                />
+              </div>
+              <div class="mt-8" v-else>
+                <i class="text-gray-900"
+                  >Loading or no data connection or no project yet. Thanks</i
+                >
+                <div
+                  class="bg-white p-2 sm:p-4 sm:h-64 rounded-2xl shadow-lg flex flex-col sm:flex-row gap-5 select-none"
+                >
+                  <div
+                    class="h-52 sm:h-full sm:w-72 rounded-xl bg-gray-200 animate-pulse"
+                  ></div>
+                  <div class="flex flex-col flex-1 gap-5 sm:p-2">
+                    <div class="flex flex-1 flex-col gap-3">
+                      <div
+                        class="bg-gray-200 w-full animate-pulse h-14 rounded-2xl"
+                      ></div>
+                      <div
+                        class="bg-gray-200 w-full animate-pulse h-3 rounded-2xl"
+                      ></div>
+                      <div
+                        class="bg-gray-200 w-full animate-pulse h-3 rounded-2xl"
+                      ></div>
+                      <div
+                        class="bg-gray-200 w-full animate-pulse h-3 rounded-2xl"
+                      ></div>
+                      <div
+                        class="bg-gray-200 w-full animate-pulse h-3 rounded-2xl"
+                      ></div>
+                    </div>
+                    <div class="mt-auto flex gap-3">
+                      <div
+                        class="bg-gray-200 w-20 h-8 animate-pulse rounded-full"
+                      ></div>
+                      <div
+                        class="bg-gray-200 w-20 h-8 animate-pulse rounded-full"
+                      ></div>
+                      <div
+                        class="bg-gray-200 w-20 h-8 animate-pulse rounded-full ml-auto"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

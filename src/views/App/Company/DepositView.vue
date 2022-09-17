@@ -1,19 +1,40 @@
 <script setup>
-import { useRoute } from 'vue-router'
-import { ref, watchEffect, onBeforeMount } from 'vue'
-import ProjectCard from '../../../components/ProjectCard.vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ref, watchEffect, reactive } from 'vue'
 import { useAppStore } from '../../../stores/app'
+import useVuelidate from '@vuelidate/core'
+import { required } from '@vuelidate/validators'
 
 const route = useRoute()
 watchEffect(() => route.name)
 
 let visibility = ref(false)
 
+let confirmVisibility = ref(false)
+
 let store = useAppStore()
 
-onBeforeMount(async () => {
-  if (store._projects.data.length == 0) await store.getProjectsForGuest()
+let router = useRouter()
+
+let input = reactive({
+  address: '',
 })
+
+const rules = {
+  address: { required },
+}
+
+const v$ = useVuelidate(rules, input)
+
+async function deposit(input) {
+  v$.value.$touch()
+
+  if (v$.value.$errors.length == 0) {
+    let res = await store.deposit(input.address)
+
+    return res
+  }
+}
 </script>
 
 <template>
@@ -26,43 +47,43 @@ onBeforeMount(async () => {
       v-if="visibility"
     >
       <!--
-              Off-canvas menu overlay, show/hide based on off-canvas menu state.
-        
-              Entering: "transition-opacity ease-linear duration-300"
-                From: "opacity-0"
-                To: "opacity-100"
-              Leaving: "transition-opacity ease-linear duration-300"
-                From: "opacity-100"
-                To: "opacity-0"
-            -->
+            Off-canvas menu overlay, show/hide based on off-canvas menu state.
+      
+            Entering: "transition-opacity ease-linear duration-300"
+              From: "opacity-0"
+              To: "opacity-100"
+            Leaving: "transition-opacity ease-linear duration-300"
+              From: "opacity-100"
+              To: "opacity-0"
+          -->
       <div
         class="fixed inset-0 bg-gray-600 bg-opacity-75"
         aria-hidden="true"
       ></div>
 
       <!--
-              Off-canvas menu, show/hide based on off-canvas menu state.
-        
-              Entering: "transition ease-in-out duration-300 transform"
-                From: "-translate-x-full"
-                To: "translate-x-0"
-              Leaving: "transition ease-in-out duration-300 transform"
-                From: "translate-x-0"
-                To: "-translate-x-full"
-            -->
+            Off-canvas menu, show/hide based on off-canvas menu state.
+      
+            Entering: "transition ease-in-out duration-300 transform"
+              From: "-translate-x-full"
+              To: "translate-x-0"
+            Leaving: "transition ease-in-out duration-300 transform"
+              From: "translate-x-0"
+              To: "-translate-x-full"
+          -->
       <div
         class="relative flex-1 flex flex-col max-w-xs w-full pt-5 pb-4 bg-white"
       >
         <!--
-                Close button, show/hide based on off-canvas menu state.
-        
-                Entering: "ease-in-out duration-300"
-                  From: "opacity-0"
-                  To: "opacity-100"
-                Leaving: "ease-in-out duration-300"
-                  From: "opacity-100"
-                  To: "opacity-0"
-              -->
+              Close button, show/hide based on off-canvas menu state.
+      
+              Entering: "ease-in-out duration-300"
+                From: "opacity-0"
+                To: "opacity-100"
+              Leaving: "ease-in-out duration-300"
+                From: "opacity-100"
+                To: "opacity-0"
+            -->
         <div class="absolute top-0 right-0 -mr-12 pt-2">
           <button
             type="button"
@@ -100,17 +121,16 @@ onBeforeMount(async () => {
           <nav class="px-2">
             <div class="space-y-1">
               <!-- Current: "bg-gray-100 text-gray-900", Default: "text-gray-600 hover:text-gray-900 hover:bg-gray-50" -->
-              <RouterLink to="/app/dashboard/admin">
+              <RouterLink to="/app/dashboard/company">
                 <a
                   href="#"
-                  class="bg-gray-100 text-gray-900 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
-                  aria-current="page"
+                  class="text-gray-600 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
                 >
                   <!--
-                        Heroicon name: outline/home
-        
-                        Current: "text-gray-500", Default: "text-gray-400 group-hover:text-gray-500"
-                      -->
+                    Heroicon name: outline/home
+    
+                    Current: "text-gray-500", Default: "text-gray-400 group-hover:text-gray-500"
+                  -->
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -130,7 +150,7 @@ onBeforeMount(async () => {
                 </a>
               </RouterLink>
 
-              <RouterLink to="/app/dashboard/admin/project/verify">
+              <RouterLink to="/app/dashboard/company/project/create">
                 <a
                   href="#"
                   class="text-gray-600 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
@@ -152,7 +172,33 @@ onBeforeMount(async () => {
                     />
                   </svg>
 
-                  Verify Project
+                  Create Project
+                </a>
+              </RouterLink>
+
+              <RouterLink to="/app/dashboard/company/project/deposit">
+                <a
+                  href="#"
+                  class="bg-gray-100 text-gray-900 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
+                  aria-current="page"
+                >
+                  <!-- Heroicon name: outline/clock -->
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="text-gray-400 group-hover:text-gray-500 mr-3 flex-shrink-0 w-5 h-5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
+                    />
+                  </svg>
+
+                  Deposit
                 </a>
               </RouterLink>
             </div>
@@ -252,18 +298,16 @@ onBeforeMount(async () => {
         <nav class="px-3 mt-6">
           <div class="space-y-1">
             <!-- Current: "bg-gray-200 text-gray-900", Default: "text-gray-700 hover:text-gray-900 hover:bg-gray-50" -->
-
-            <RouterLink to="/app/dashboard/admin">
+            <RouterLink to="/app/dashboard/company">
               <a
                 href="#"
-                class="bg-gray-200 text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-                aria-current="page"
+                class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
               >
                 <!--
-                      Heroicon name: outline/home
-        
-                      Current: "text-gray-500", Default: "text-gray-400 group-hover:text-gray-500"
-                    -->
+                  Heroicon name: outline/home
+    
+                  Current: "text-gray-500", Default: "text-gray-400 group-hover:text-gray-500"
+                -->
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -283,7 +327,7 @@ onBeforeMount(async () => {
               </a>
             </RouterLink>
 
-            <RouterLink to="/app/dashboard/admin/project/verify">
+            <RouterLink to="/app/dashboard/company/project/create">
               <a
                 href="#"
                 class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
@@ -305,7 +349,34 @@ onBeforeMount(async () => {
                   />
                 </svg>
 
-                Verify Project
+                Create Project
+              </a>
+            </RouterLink>
+
+            <RouterLink to="/app/dashboard/company/project/deposit">
+              <a
+                href="#"
+                class="bg-gray-200 text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+                aria-current="page"
+              >
+                <!-- Heroicon name: outline/clock -->
+
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="text-gray-400 group-hover:text-gray-500 mr-3 flex-shrink-0 w-5 h-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
+                  />
+                </svg>
+
+                Deposit
               </a>
             </RouterLink>
           </div>
@@ -381,10 +452,10 @@ onBeforeMount(async () => {
                 >
                   <span class="sr-only">Open user menu</span>
                   <!-- <img
-                            class="h-8 w-8 rounded-full"
-                            src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                            alt=""
-                          /> -->
+                          class="h-8 w-8 rounded-full"
+                          src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                          alt=""
+                        /> -->
                 </button>
               </div>
             </div>
@@ -404,72 +475,164 @@ onBeforeMount(async () => {
             >
               Disconnect
             </button>
-            <RouterLink
-              to="/app/dashboard/admin/project/verify"
-              class="order-0 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:order-1 sm:ml-3"
-            >
-              Verify
-            </RouterLink>
           </div>
         </div>
-        <!-- My projects -->
+        <!-- All projects -->
         <div class="px-4 mt-6 sm:px-6 lg:px-4">
           <h2 class="text-gray-500 text-xs font-medium uppercase tracking-wide">
-            All Project
+            Deposit
           </h2>
-          <div class="bg-white">
-            <div class="max-w-2xl mx-auto pb-5 lg:max-w-7xl">
-              <div
-                class="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-2 xl:grid-cols-3"
-                v-if="store._projects.total > 0"
+
+          <div class="mt-10 sm:mt-8">
+            <div
+              class="flex p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg dark:bg-green-200 dark:text-green-800"
+              role="alert"
+              v-if="route.query['success-detail'] == 'deposit-created'"
+            >
+              <svg
+                aria-hidden="true"
+                class="flex-shrink-0 inline w-5 h-5 mr-3"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <ProjectCard
-                  v-for="project of store._projects.data"
-                  :data="project"
-                  :key="project"
-                />
+                <path
+                  fill-rule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+              <span class="sr-only">Info</span>
+              <div>
+                <span class="font-medium">Success!</span> You've deposited to
+                the project successfully.
+                <a
+                  :href="router.currentRoute.value.fullPath.split('?')[0]"
+                  class="font-bold underline"
+                  >Okay</a
+                >
+                <ul>
+                  <li>
+                    1. Your backers can now claim their capital and ROI because
+                    disbursement starts right away.
+                  </li>
+                </ul>
               </div>
-              <div class="mt-8" v-else>
-                <i class="text-gray-900"
-                  >Loading or no data connection or no project yet. Thanks</i
+            </div>
+
+            <div
+              class="flex p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800"
+              role="alert"
+              v-if="route.query['failed-detail'] == 'deposit-created'"
+            >
+              <svg
+                aria-hidden="true"
+                class="flex-shrink-0 inline w-5 h-5 mr-3"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+              <span class="sr-only">Info</span>
+              <div>
+                <span class="font-medium">Failed!</span> Error occured while
+                depositing to the project.
+                <RouterLink
+                  :to="router.currentRoute.value.fullPath.split('?')[0]"
+                  class="font-bold underline"
+                  >Okay</RouterLink
                 >
-                <div
-                  class="bg-white p-2 sm:p-4 sm:h-64 rounded-2xl shadow-lg flex flex-col sm:flex-row gap-5 select-none"
-                >
-                  <div
-                    class="h-52 sm:h-full sm:w-72 rounded-xl bg-gray-200 animate-pulse"
-                  ></div>
-                  <div class="flex flex-col flex-1 gap-5 sm:p-2">
-                    <div class="flex flex-1 flex-col gap-3">
-                      <div
-                        class="bg-gray-200 w-full animate-pulse h-14 rounded-2xl"
-                      ></div>
-                      <div
-                        class="bg-gray-200 w-full animate-pulse h-3 rounded-2xl"
-                      ></div>
-                      <div
-                        class="bg-gray-200 w-full animate-pulse h-3 rounded-2xl"
-                      ></div>
-                      <div
-                        class="bg-gray-200 w-full animate-pulse h-3 rounded-2xl"
-                      ></div>
-                      <div
-                        class="bg-gray-200 w-full animate-pulse h-3 rounded-2xl"
-                      ></div>
-                    </div>
-                    <div class="mt-auto flex gap-3">
-                      <div
-                        class="bg-gray-200 w-20 h-8 animate-pulse rounded-full"
-                      ></div>
-                      <div
-                        class="bg-gray-200 w-20 h-8 animate-pulse rounded-full"
-                      ></div>
-                      <div
-                        class="bg-gray-200 w-20 h-8 animate-pulse rounded-full ml-auto"
-                      ></div>
+                <ul class="mt-2">
+                  <li>1. Make sure you have enough fund in your wallet.</li>
+                  <li>
+                    2. Project ROI duration hasn't been reached to start
+                    disbursement.
+                  </li>
+                  <li>3. Project capital and ROI funds are not completed.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="md:grid md:grid-cols-3 md:gap-6">
+              <div class="md:col-span-1">
+                <div class="px-4 sm:px-0">
+                  <h3 class="text-lg font-medium leading-6 text-gray-900">
+                    Deposit Information
+                  </h3>
+                  <p class="mt-1 text-sm text-gray-600">
+                    Make sure you've enough funds to cover both capital raised
+                    by backers and their return on investment.
+                  </p>
+                </div>
+              </div>
+              <div class="mt-5 md:mt-0 md:col-span-2">
+                <form action="#" method="POST">
+                  <div class="overflow-hidden sm:rounded-md">
+                    <div class="px-4 py-5 bg-white sm:p-6">
+                      <div class="grid grid-cols-6 gap-6">
+                        <div class="col-span-6 sm:col-span-4">
+                          <label class="block text-sm font-medium text-gray-700"
+                            >Project Address</label
+                          >
+                          <input
+                            type="text"
+                            placeholder="0x00000..."
+                            class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            v-model="input.address"
+                            :class="
+                              v$.address.$errors.length > 0
+                                ? 'focus:ring-red-500 focus:border-red-500'
+                                : 'focus:ring-indigo-500 focus:border-indigo-500'
+                            "
+                            @blur="v$.address.$touch()"
+                          />
+
+                          <div
+                            class="mt-1 text-red-600 text-sm"
+                            v-for="error of v$.address.$errors"
+                            :key="error.$uid"
+                          >
+                            {{
+                              error.$message
+                                .toLowerCase()
+                                .replace(
+                                  'value',
+                                  error.$property.charAt(0).toUpperCase() +
+                                    error.$property.slice(1)
+                                )
+                            }}
+                          </div>
+
+                          <button
+                            @click.prevent="
+                              deposit(input).then((res) => {
+                                if (typeof res == 'boolean') {
+                                  if (res) {
+                                    router.push(
+                                      `${router.currentRoute.value.fullPath}?success-detail=deposit-created`
+                                    )
+                                  } else {
+                                    router.push(
+                                      `${router.currentRoute.value.fullPath}?failed-detail=deposit-created`
+                                    )
+                                  }
+                                }
+                              })
+                            "
+                            class="mt-5 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          >
+                            Deposit
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </form>
               </div>
             </div>
           </div>

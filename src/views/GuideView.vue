@@ -1,5 +1,12 @@
 <script setup>
 import Breadcrumb from '../components/Breadcrumb.vue'
+import { useAppStore } from '../stores/app'
+
+let store = useAppStore()
+
+async function connect() {
+  await store.connect()
+}
 </script>
 
 <template>
@@ -22,21 +29,37 @@ import Breadcrumb from '../components/Breadcrumb.vue'
           aliqua.
         </p>
         <div class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-          <div class="rounded-md shadow">
-            <a
-              href="#"
+          <div class="rounded-md shadow" v-if="store._wallet.is_connected">
+            <RouterLink to="/app/dashboard/company">
+              <a
+                href="#"
+                class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-3 md:text-lg md:px-8"
+              >
+                Company
+              </a>
+            </RouterLink>
+          </div>
+          <div
+            class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3"
+            v-if="store._wallet.is_connected"
+          >
+            <RouterLink to="/app/dashboard/backer">
+              <a
+                href="#"
+                class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-3 md:text-lg md:px-8"
+              >
+                Backer
+              </a>
+            </RouterLink>
+          </div>
+          <div class="rounded-md shadow" v-if="!store._wallet.is_connected">
+            <button
+              type="button"
+              @click="connect()"
               class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-3 md:text-lg md:px-8"
             >
-              Company
-            </a>
-          </div>
-          <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-            <a
-              href="#"
-              class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-3 md:text-lg md:px-8"
-            >
-              Backers
-            </a>
+              Connect
+            </button>
           </div>
         </div>
       </div>

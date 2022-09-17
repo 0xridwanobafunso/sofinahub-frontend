@@ -1,9 +1,20 @@
 <script setup>
 import HeaderAlert from './HeaderAlert.vue'
 
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
+import { useRoute } from 'vue-router'
+import { useAppStore } from '../stores/app'
+
+const route = useRoute()
+watchEffect(() => route.name)
 
 let visibility = ref(false)
+
+let store = useAppStore()
+
+async function connect() {
+  await store.connect()
+}
 </script>
 
 <template>
@@ -104,7 +115,7 @@ let visibility = ref(false)
                 >
 
                 <a
-                  href="https://github.com/0xridwanobafunso"
+                  href="https://github.com/0xridwanobafunso/sofinahub-backend"
                   target="_blank"
                   class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                   >GitHub</a
@@ -112,7 +123,7 @@ let visibility = ref(false)
               </div>
             </div>
             <div class="flex items-center">
-              <div class="flex-shrink-0">
+              <div class="flex-shrink-0" v-if="route.name == 'home'">
                 <RouterLink to="/app"
                   ><button
                     type="button"
@@ -121,6 +132,31 @@ let visibility = ref(false)
                     <span>Launch App</span>
                   </button></RouterLink
                 >
+              </div>
+              <div
+                class="flex-shrink-0"
+                v-if="route.name != 'home' && store._wallet.is_connected"
+              >
+                <button
+                  type="button"
+                  class="relative inline-flex items-center px-4 py-2 shadow-sm text-sm font-medium rounded-md text-white border border-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500 truncate"
+                >
+                  <span>{{
+                    store._wallet.address.substring(0, 10) + '...'
+                  }}</span>
+                </button>
+              </div>
+              <div
+                class="flex-shrink-0"
+                v-if="route.name != 'home' && !store._wallet.is_connected"
+              >
+                <button
+                  type="button"
+                  @click="connect()"
+                  class="relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500"
+                >
+                  <span>Connect</span>
+                </button>
               </div>
               <div
                 class="hidden md:ml-4 md:flex-shrink-0 md:flex md:items-center"
@@ -199,7 +235,7 @@ let visibility = ref(false)
             >
 
             <a
-              href="https://github.com/0xridwanobafunso/"
+              href="https://github.com/0xridwanobafunso/sofinahub-backend"
               target="_blank"
               class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
               >GitHub</a

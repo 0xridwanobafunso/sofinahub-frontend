@@ -2,10 +2,45 @@
 import Breadcrumb from '../../components/Breadcrumb.vue'
 import ProjectImageSlider from '../../components/ProjectImageSlider.vue'
 import ProjectVideoSlider from '../../components/ProjectVideoSlider.vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ref, watchEffect, onBeforeMount, reactive } from 'vue'
+import useVuelidate from '@vuelidate/core'
+import { required, decimal } from '@vuelidate/validators'
 
-import { ref } from 'vue'
+import { useAppStore } from '../../stores/app'
 
 let visibility = ref(false)
+
+const route = useRoute()
+watchEffect(() => route.params)
+
+const router = useRouter()
+
+let store = useAppStore()
+
+let input = reactive({
+  amount: '',
+})
+
+const rules = {
+  amount: { required, decimal },
+}
+
+const v$ = useVuelidate(rules, input)
+
+async function donate(projectAddress) {
+  v$.value.$touch()
+
+  if (v$.value.$errors.length == 0) {
+    let res = await store.donate(projectAddress, input.amount)
+
+    return res
+  }
+}
+
+onBeforeMount(async () => {
+  await store.getProject(route.params.address)
+})
 </script>
 
 <template>
@@ -24,13 +59,83 @@ let visibility = ref(false)
           <dt class="text-gray-500">Creator details and application</dt>
         </dl>
         <div class="mt-4 sm:mt-0">
-          <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500"
+          <a
+            :href="`https://ropsten.etherscan.io/address/${route.params.address}`"
+            target="_blank"
+            class="font-medium text-indigo-600 hover:text-indigo-500"
             >View on etherscan<span aria-hidden="true"> &rarr;</span></a
           >
         </div>
       </div>
 
       <div class="mt-4">
+        <div
+          class="flex p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg dark:bg-green-200 dark:text-green-800"
+          role="alert"
+          v-if="route.query['success-detail'] == 'donation-created'"
+        >
+          <svg
+            aria-hidden="true"
+            class="flex-shrink-0 inline w-5 h-5 mr-3"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+          <span class="sr-only">Info</span>
+          <div>
+            <span class="font-medium">Success!</span> You've donated to the
+            project successfully.
+            <a
+              :href="router.currentRoute.value.fullPath.split('?')[0]"
+              class="font-bold underline"
+              >Okay</a
+            >
+          </div>
+        </div>
+
+        <div
+          class="flex p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800"
+          role="alert"
+          v-if="route.query['failed-detail'] == 'donation-created'"
+        >
+          <svg
+            aria-hidden="true"
+            class="flex-shrink-0 inline w-5 h-5 mr-3"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+          <span class="sr-only">Info</span>
+          <div>
+            <span class="font-medium">Failed!</span> Error occured while
+            donating to the project.
+            <RouterLink
+              :to="router.currentRoute.value.fullPath.split('?')[0]"
+              class="font-bold underline"
+              >Okay</RouterLink
+            >
+            <ul class="mt-2">
+              <li>1. Make sure you've connected your wallet.</li>
+              <li>
+                2. Contribution did not send successfully because project
+                deadline has passed. Your donated funds will be refunded.
+              </li>
+            </ul>
+          </div>
+        </div>
+
         <h2 class="sr-only">Project details</h2>
 
         <div class="space-y-24">
@@ -57,6 +162,7 @@ let visibility = ref(false)
                   <div
                     class="flex p-4 text-sm text-red-700 bg-red-100 dark:bg-red-200 dark:text-red-800"
                     role="alert"
+                    v-if="!store._project.data[0][15]"
                   >
                     <svg
                       aria-hidden="true"
@@ -90,7 +196,7 @@ let visibility = ref(false)
                       <dd
                         class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
                       >
-                        Duplex Building At Ajah, Lagos, Nigeria.
+                        {{ store._project.data[0][2] }}
                       </dd>
                     </div>
                     <div
@@ -102,11 +208,7 @@ let visibility = ref(false)
                       <dd
                         class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
                       >
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        Incidunt in eligendi facilis nisi ratione consectetur
-                        odio consequatur. Quisquam voluptatem, dolores ex,
-                        eligendi nobis accusantium mollitia, beatae numquam et
-                        sit quod!
+                        {{ store._project.data[0][3] }}
                       </dd>
                     </div>
                     <div
@@ -119,14 +221,16 @@ let visibility = ref(false)
                         class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
                       >
                         <a
-                          href="#"
+                          :href="`https://ropsten.etherscan.io/address/${store._project.data[5]}`"
+                          target="_blank"
                           class="font-medium text-indigo-600 hover:text-indigo-500"
                         >
-                          0x98765670000000
+                          {{ store._project.data[5].substring(0, 30) + '...' }}
                         </a>
                         <br />
                         <div
                           class="mt-3 rounded-lg inline-flex text-green-700 ring-4 ring-white"
+                          v-if="store._project.data[0][15]"
                         >
                           <!-- Heroicon name: outline/cash -->
                           <svg
@@ -159,7 +263,7 @@ let visibility = ref(false)
                       <dd
                         class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
                       >
-                        0
+                        {{ store._project.data[3] }}
                       </dd>
                     </div>
                     <div
@@ -171,7 +275,9 @@ let visibility = ref(false)
                       <dd
                         class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
                       >
-                        <b>2 ETH</b>
+                        {{
+                          store._project.data[0][0] / Math.pow(10, 18) + ' ETH'
+                        }}
                       </dd>
                     </div>
                     <div
@@ -183,7 +289,7 @@ let visibility = ref(false)
                       <dd
                         class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
                       >
-                        12-01-2020:07:02:55Z
+                        {{ store._project.data[6] }}
                       </dd>
                     </div>
 
@@ -197,10 +303,11 @@ let visibility = ref(false)
                         class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
                       >
                         <a
-                          href="#"
+                          :href="`https://ropsten.etherscan.io/address/${store._project.data[0][14]}`"
+                          target="_blank"
                           class="font-medium text-indigo-600 hover:text-indigo-500"
                         >
-                          DDP Building
+                          {{ store._project.data[0][10] }}
                         </a>
                       </dd>
                     </div>
@@ -213,7 +320,7 @@ let visibility = ref(false)
                       <dd
                         class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
                       >
-                        DDP
+                        {{ '$' + store._project.data[0][11] }}
                       </dd>
                     </div>
                     <div
@@ -241,7 +348,7 @@ let visibility = ref(false)
                         <dd
                           class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
                         >
-                          4
+                          {{ store._project.data[0][12] }}
                         </dd>
                       </div>
                       <div
@@ -253,7 +360,7 @@ let visibility = ref(false)
                         <dd
                           class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
                         >
-                          10,000,000
+                          {{ store._project.data[0][13] }}
                         </dd>
                       </div>
                       <div
@@ -263,7 +370,7 @@ let visibility = ref(false)
                         <dd
                           class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
                         >
-                          3 %
+                          {{ store._project.data[0][8] }} %
                         </dd>
                       </div>
                       <div
@@ -275,7 +382,7 @@ let visibility = ref(false)
                         <dd
                           class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
                         >
-                          40 Days After Deadline
+                          {{ store._project.data[7] }}
                         </dd>
                       </div>
                       <div
@@ -291,7 +398,9 @@ let visibility = ref(false)
                             href="#"
                             class="font-medium text-indigo-600 hover:text-indigo-500"
                           >
-                            0x000000000000000001
+                            {{
+                              store._project.data[0][4].substring(0, 25) + '...'
+                            }}
                           </a>
                         </dd>
                       </div>
@@ -311,6 +420,8 @@ let visibility = ref(false)
                           >
                             <li
                               class="pl-3 pr-4 py-3 flex items-center justify-between text-sm"
+                              v-for="url of store._project.data[0][7]"
+                              :key="url"
                             >
                               <div class="w-0 flex-1 flex items-center">
                                 <!-- Heroicon name: solid/paper-clip -->
@@ -328,75 +439,33 @@ let visibility = ref(false)
                                   />
                                 </svg>
                                 <span class="ml-2 flex-1 w-0 truncate">
-                                  0x0000000000000.pdf
+                                  {{ store._project.data[5] }}.doc
                                 </span>
                               </div>
                               <div class="ml-4 flex-shrink-0">
                                 <a
-                                  href="#"
+                                  :href="url"
+                                  target="_blank"
                                   class="font-medium text-indigo-600 hover:text-indigo-500"
                                 >
-                                  Download
-                                </a>
-                              </div>
-                            </li>
-                            <li
-                              class="pl-3 pr-4 py-3 flex items-center justify-between text-sm"
-                            >
-                              <div class="w-0 flex-1 flex items-center">
-                                <!-- Heroicon name: solid/paper-clip -->
-                                <svg
-                                  class="flex-shrink-0 h-5 w-5 text-gray-400"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                  aria-hidden="true"
-                                >
-                                  <path
-                                    fill-rule="evenodd"
-                                    d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z"
-                                    clip-rule="evenodd"
-                                  />
-                                </svg>
-                                <span class="ml-2 flex-1 w-0 truncate">
-                                  0x0000000000000.pdf
-                                </span>
-                              </div>
-                              <div class="ml-4 flex-shrink-0">
-                                <a
-                                  href="#"
-                                  class="font-medium text-indigo-600 hover:text-indigo-500"
-                                >
-                                  Download
+                                  View
                                 </a>
                               </div>
                             </li>
                           </ul>
                         </dd>
                       </div>
-                      <div class="py-4 sm:py-5 sm:gap-4 sm:px-6">
-                        <p class="font-medium text-gray-900">
-                          Funds raised by backers:
-                          <span class="text-gray-900 ml-2 font-bold"
-                            >0.66 ETH</span
-                          >
-                        </p>
-                        <div class="mt-6">
-                          <div class="bg-gray-200 rounded-full overflow-hidden">
-                            <div
-                              class="h-2 bg-indigo-600 rounded-full"
-                              style="width: calc((1 * 2 + 1) / 8 * 100%)"
-                            ></div>
-                          </div>
-                          <div
-                            class="hidden sm:grid grid-cols-4 font-medium text-gray-600 mt-6"
-                          >
-                            <div class="text-indigo-600">25%</div>
-                            <div class="text-center text-indigo-600">50%</div>
-                            <div class="text-center">75%</div>
-                            <div class="text-right">100%</div>
-                          </div>
-                        </div>
+                      <div
+                        class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
+                      >
+                        <dt class="text-sm font-medium text-gray-500">
+                          Funds raised by backers
+                        </dt>
+                        <dd
+                          class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
+                        >
+                          {{ store._project.data[1] / Math.pow(10, 18) }} ETH
+                        </dd>
                       </div>
                       <div
                         class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
@@ -407,37 +476,93 @@ let visibility = ref(false)
                         <dd
                           class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
                         >
-                          <a
-                            href="#"
-                            class="font-medium text-indigo-600 hover:text-indigo-500"
+                          <div
+                            v-for="(value, address) in store._project
+                              .contributors"
+                            :key="address"
                           >
-                            0x000000000000000005
-                          </a>
-                          <br />
-                          <a
-                            href="#"
-                            class="font-medium text-indigo-600 hover:text-indigo-500"
-                          >
-                            0x000000000000000005
-                          </a>
-                          <br />
-                          <a
-                            href="#"
-                            class="font-medium text-indigo-600 hover:text-indigo-500"
-                          >
-                            0x000000000000000005
-                          </a>
-                          <br />
-                          <a
-                            href="#"
-                            class="font-medium text-indigo-600 hover:text-indigo-500"
-                          >
-                            0x000000000000000005
-                          </a>
+                            <span href="#" class="text-gray-500">
+                              {{ address.substring(0, 30) + '...' }}
+                              <b class="underline">{{
+                                ' donated ' + value + ' ETH'
+                              }}</b>
+                            </span>
+                          </div>
                         </dd>
                       </div>
                     </div>
                   </dl>
+                </div>
+              </div>
+              <div class="mt-5 shadow-md px-4 py-7 text-gray-500">
+                <h4 class="text-lg font-bold">Do you want to donate?</h4>
+                <div class="mt-2">
+                  <ol>
+                    <li>Simply connect your wallet before trying to donate.</li>
+                    <li>
+                      Load this project
+                      <a
+                        class="font-medium text-indigo-600 hover:text-indigo-500"
+                        :href="`https://ropsten.etherscan.io/address/${store._project.data[0][14]}`"
+                        target="_blank"
+                        >reward token smart contract</a
+                      >
+                      in your wallet.
+                    </li>
+                  </ol>
+                </div>
+                <div class="mt-5">
+                  <label for="" class="font-bold">Amount (in ETH)</label>
+                  <div class="mt-2 relative text-gray-700">
+                    <input
+                      class="w-full h-10 pl-3 pr-8 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                      type="text"
+                      placeholder="e.g 0.5"
+                      v-model="input.amount"
+                      :class="
+                        v$.amount.$errors.length > 0
+                          ? 'focus:ring-red-500 focus:border-red-500'
+                          : 'focus:ring-indigo-500 focus:border-indigo-500'
+                      "
+                      @blur="v$.amount.$touch()"
+                    />
+                    <button
+                      class="absolute inset-y-0 right-0 flex items-center px-4 font-bold text-white bg-indigo-600 rounded-r-lg hover:bg-indigo-500 focus:bg-indigo-700"
+                      @click="
+                        donate(store._project.data[5]).then((res) => {
+                          if (typeof res == 'boolean') {
+                            if (res) {
+                              router.push(
+                                `${router.currentRoute.value.fullPath}?success-detail=donation-created`
+                              )
+                            } else {
+                              router.push(
+                                `${router.currentRoute.value.fullPath}?failed-detail=donation-created`
+                              )
+                            }
+                          }
+                        })
+                      "
+                    >
+                      Donate
+                    </button>
+                  </div>
+
+                  <div
+                    class="mt-1 text-red-600 text-sm"
+                    v-for="error of v$.amount.$errors"
+                    :key="error.$uid"
+                  >
+                    {{
+                      error.$message
+                        .toLowerCase()
+                        .replace(
+                          'value',
+                          error.$property.charAt(0).toUpperCase() +
+                            error.$property.slice(1)
+                        )
+                    }}
+                  </div>
                 </div>
               </div>
             </div>

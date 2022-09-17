@@ -1,6 +1,10 @@
 <script setup>
 import 'xtendui'
 import 'xtendui/src/slider'
+
+import { useAppStore } from '../stores/app'
+
+let store = useAppStore()
 </script>
 
 <template>
@@ -11,7 +15,12 @@ import 'xtendui/src/slider'
           class="xt-slides transition ease-out-expo duration-300 on:ease-out-quint on:duration-1000 xt-row xt-row-4"
           data-xt-slider-dragger
         >
-          <div class="xt-slide w-full group" data-xt-slider-target>
+          <div
+            class="xt-slide w-full group"
+            data-xt-slider-target
+            v-for="url of store._project.data[0][6]"
+            :key="url"
+          >
             <div
               class="xt-card text-gray-900 xt-links-default rounded-md bg-gray-100 border-2 border-transparent transition group-in:border-gray-200 text-base text-center"
             >
@@ -19,23 +28,7 @@ import 'xtendui/src/slider'
                 <iframe
                   width="500"
                   height="315"
-                  src="https://www.youtube.com/embed/y881t8ilMyc"
-                  frameborder="0"
-                  allowfullscreen
-                ></iframe>
-              </div>
-            </div>
-          </div>
-
-          <div class="xt-slide w-full group" data-xt-slider-target>
-            <div
-              class="xt-card text-gray-900 xt-links-default rounded-md bg-gray-100 border-2 border-transparent transition group-in:border-gray-200 text-base text-center"
-            >
-              <div class="xt-h4">
-                <iframe
-                  width="500"
-                  height="315"
-                  src="https://www.youtube.com/embed/y881t8ilMyc"
+                  :src="url"
                   frameborder="0"
                   allowfullscreen
                 ></iframe>

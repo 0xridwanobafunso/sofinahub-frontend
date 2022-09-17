@@ -1,5 +1,4 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
 import NavBar from './components/NavBar.vue'
 
 import { ref, watchEffect } from 'vue'
@@ -11,8 +10,11 @@ watchEffect(() => route.name)
 const routeToExcludeNavBar = ref([
   'app-dashboard-company',
   'app-dashboard-company-project-create',
+  'app-dashboard-company-project-deposit',
   'app-dashboard-backer',
   'app-dashboard-backer-projects-backed',
+  'app-dashboard-backer-projects-refund',
+  'app-dashboard-backer-projects-claim',
   'app-dashboard-admin',
   'app-dashboard-admin-project-verify',
 ])

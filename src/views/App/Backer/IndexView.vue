@@ -1,12 +1,20 @@
 <script setup>
 import { useRoute } from 'vue-router'
-import { ref, watchEffect } from 'vue'
+import { ref, watchEffect, onBeforeMount } from 'vue'
+import { useAppStore } from '../../../stores/app'
 import ProjectCard from '../../../components/ProjectCard.vue'
 
 const route = useRoute()
 watchEffect(() => route.name)
 
 let visibility = ref(false)
+
+let store = useAppStore()
+
+onBeforeMount(async () => {
+  if (store._wallet.backer.projects.total == 0)
+    await store.getProjectsForBacker()
+})
 </script>
 
 <template>
@@ -148,6 +156,56 @@ let visibility = ref(false)
                   Backed Projects
                 </a>
               </RouterLink>
+
+              <RouterLink to="/app/dashboard/backer/projects/refund">
+                <a
+                  href="#"
+                  class="text-gray-600 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
+                >
+                  <!-- Heroicon name: outline/view-list -->
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="text-gray-400 group-hover:text-gray-500 mr-3 flex-shrink-0 w-5 h-5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"
+                    />
+                  </svg>
+
+                  Ask For Refund
+                </a>
+              </RouterLink>
+
+              <RouterLink to="/app/dashboard/backer/projects/claim">
+                <a
+                  href="#"
+                  class="text-gray-600 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md"
+                >
+                  <!-- Heroicon name: outline/view-list -->
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="text-gray-400 group-hover:text-gray-500 mr-3 flex-shrink-0 w-5 h-5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"
+                    />
+                  </svg>
+
+                  Claim
+                </a>
+              </RouterLink>
             </div>
             <div class="mt-8">
               <h3
@@ -218,9 +276,9 @@ let visibility = ref(false)
                     <span class="text-gray-900 text-sm font-medium truncate"
                       >Ethereum Network</span
                     >
-                    <span class="text-gray-500 text-sm truncate"
-                      >0x0068Dfb05741A0F61aF947332fa6c7fc7c4928fe</span
-                    >
+                    <span class="text-gray-500 text-sm truncate">{{
+                      store._wallet.address
+                    }}</span>
                   </span>
                 </span>
                 <!-- Heroicon name: solid/selector -->
@@ -299,6 +357,56 @@ let visibility = ref(false)
                 </svg>
 
                 Backed Projects
+              </a>
+            </RouterLink>
+
+            <RouterLink to="/app/dashboard/backer/projects/refund">
+              <a
+                href="#"
+                class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+              >
+                <!-- Heroicon name: outline/view-list -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="text-gray-400 group-hover:text-gray-500 mr-3 flex-shrink-0 w-5 h-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"
+                  />
+                </svg>
+
+                Ask For Refund
+              </a>
+            </RouterLink>
+
+            <RouterLink to="/app/dashboard/backer/projects/claim">
+              <a
+                href="#"
+                class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+              >
+                <!-- Heroicon name: outline/view-list -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="text-gray-400 group-hover:text-gray-500 mr-3 flex-shrink-0 w-5 h-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"
+                  />
+                </svg>
+
+                Claim
               </a>
             </RouterLink>
           </div>
@@ -414,8 +522,55 @@ let visibility = ref(false)
             <div class="max-w-2xl mx-auto pb-5 lg:max-w-7xl">
               <div
                 class="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-2 xl:grid-cols-3"
+                v-if="store._wallet.backer.projects.total > 0"
               >
-                <ProjectCard v-for="project of 4" :key="project" />
+                <ProjectCard
+                  v-for="project of store._wallet.backer.projects.data"
+                  :data="project"
+                  :key="project"
+                />
+              </div>
+              <div class="mt-8" v-else>
+                <i class="text-gray-900"
+                  >Loading or no data connection or no project yet. Thanks</i
+                >
+                <div
+                  class="bg-white p-2 sm:p-4 sm:h-64 rounded-2xl shadow-lg flex flex-col sm:flex-row gap-5 select-none"
+                >
+                  <div
+                    class="h-52 sm:h-full sm:w-72 rounded-xl bg-gray-200 animate-pulse"
+                  ></div>
+                  <div class="flex flex-col flex-1 gap-5 sm:p-2">
+                    <div class="flex flex-1 flex-col gap-3">
+                      <div
+                        class="bg-gray-200 w-full animate-pulse h-14 rounded-2xl"
+                      ></div>
+                      <div
+                        class="bg-gray-200 w-full animate-pulse h-3 rounded-2xl"
+                      ></div>
+                      <div
+                        class="bg-gray-200 w-full animate-pulse h-3 rounded-2xl"
+                      ></div>
+                      <div
+                        class="bg-gray-200 w-full animate-pulse h-3 rounded-2xl"
+                      ></div>
+                      <div
+                        class="bg-gray-200 w-full animate-pulse h-3 rounded-2xl"
+                      ></div>
+                    </div>
+                    <div class="mt-auto flex gap-3">
+                      <div
+                        class="bg-gray-200 w-20 h-8 animate-pulse rounded-full"
+                      ></div>
+                      <div
+                        class="bg-gray-200 w-20 h-8 animate-pulse rounded-full"
+                      ></div>
+                      <div
+                        class="bg-gray-200 w-20 h-8 animate-pulse rounded-full ml-auto"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
