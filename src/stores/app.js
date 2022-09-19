@@ -14,9 +14,7 @@ export const useAppStore = defineStore({
     CONFIG: {
       INFURA_ID: '4885e870e57a4b27b8b80466b0be302d',
       NETWORK: 'ropsten',
-      SOFINAHUB_CONTRACT_ADDRESS: '0xD8eC023Ed9a9245eb31FCeB813b1B5758d8AE02B',
-      // SOFINAHUB_CONTRACT_ADDRESS: '0xB3877C2CD2d1c91f0330A163A6d18790a0510B33',
-      // SOFINAHUB_CONTRACT_ADDRESS: '0x7FA8a7b30Dc94E4B68b6e36bD5fFB01f27A134df',
+      SOFINAHUB_CONTRACT_ADDRESS: '0xd8DdDB6a7AdfC782f9976860039908d5D1Ac9e46',
     },
     walletconnect: {
       is_connected: false,
@@ -101,9 +99,9 @@ export const useAppStore = defineStore({
 
         // Subscribe to accounts change
         this.walletconnect.provider.on('accountsChanged', (accounts) => {
-          console.log(accounts)
-
           console.log('Account changed')
+
+          this.walletconnect.address = accounts[0]
         })
 
         // Subscribe to chainId change

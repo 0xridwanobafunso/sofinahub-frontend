@@ -28,7 +28,8 @@ let visibility = ref(true)
     <div class="ml-3 text-sm font-medium text-blue-700 dark:text-blue-800">
       ✨🔥🔥 SofinaHub is launching today on
       <a
-        href="#"
+        href="https://ropsten.etherscan.io/address/0xd8DdDB6a7AdfC782f9976860039908d5D1Ac9e46"
+        target="_blank"
         class="font-semibold underline hover:text-blue-800 dark:hover:text-blue-900"
         >Ethereum Blockchain Network</a
       >!!! Give it a click if you like 🥰🥰
