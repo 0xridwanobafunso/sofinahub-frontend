@@ -12,7 +12,8 @@ export const useAppStore = defineStore({
     CONFIG: {
       INFURA_ID: '4885e870e57a4b27b8b80466b0be302d',
       NETWORK: 'ropsten',
-      SOFINAHUB_CONTRACT_ADDRESS: '0x7FA8a7b30Dc94E4B68b6e36bD5fFB01f27A134df',
+      SOFINAHUB_CONTRACT_ADDRESS: '0xB3877C2CD2d1c91f0330A163A6d18790a0510B33',
+      // SOFINAHUB_CONTRACT_ADDRESS: '0x7FA8a7b30Dc94E4B68b6e36bD5fFB01f27A134df',
     },
     walletconnect: {
       is_connected: false,
@@ -516,12 +517,10 @@ export const useAppStore = defineStore({
 
         let project = await contract.methods.getProject().call()
 
-        let goalInWei = project[0][1]
+        let goalInWei = project[0][0]
         let roiInWei = (project[0][8] / 100) * goalInWei
 
         let depositInWei = Math.round(goalInWei + roiInWei)
-
-        console.log(depositInWei)
 
         let _contract = new this.walletconnect.web3.eth.Contract(
           ABI.SOFINAHUB,
@@ -580,17 +579,98 @@ export const useAppStore = defineStore({
     },
     async refund(address) {
       try {
-        let _contract = new this.walletconnect.web3.eth.Contract(
-          ABI.SOFINAHUB,
-          this.CONFIG.SOFINAHUB_CONTRACT_ADDRESS
+        // allowance... then refund
+        let p_contract = new this.walletconnect.web3.eth.Contract(
+          ABI.PROJECT,
+          address
         )
 
-        let response = await _contract.methods.refund(address).send({
-          from: this.walletconnect.address,
-        })
+        let p_data = await p_contract.methods.getProject().call()
 
-        if (response) {
-          return true
+        console.log(p_data[0][14])
+
+        let t_contract = new this.walletconnect.web3.eth.Contract(
+          ABI.TOKEN,
+          p_data[0][14]
+        )
+
+        let balance = await t_contract.methods
+          .balanceOf(this.walletconnect.address)
+          .call()
+
+        let t_response = await t_contract.methods
+          .approve(p_data[5], balance)
+          .send({
+            from: this.walletconnect.address,
+          })
+
+        if (t_response) {
+          let _contract = new this.walletconnect.web3.eth.Contract(
+            ABI.SOFINAHUB,
+            this.CONFIG.SOFINAHUB_CONTRACT_ADDRESS
+          )
+
+          let response = await _contract.methods.refund(address).send({
+            from: this.walletconnect.address,
+          })
+
+          if (response) {
+            return true
+          } else {
+            return false
+          }
+        } else {
+          return false
+        }
+      } catch (error) {
+        console.log(error)
+
+        this.error = error
+
+        return false
+      }
+    },
+    async claim(address) {
+      try {
+        // allowance... then claim
+        let p_contract = new this.walletconnect.web3.eth.Contract(
+          ABI.PROJECT,
+          address
+        )
+
+        let p_data = await p_contract.methods.getProject().call()
+
+        let t_contract = new this.walletconnect.web3.eth.Contract(
+          ABI.TOKEN,
+          p_data[0][14]
+        )
+
+        let balance = await t_contract.methods
+          .balanceOf(this.walletconnect.address)
+          .call()
+
+        let t_response = await t_contract.methods
+          .approve(p_data[5], balance)
+          .send({
+            from: this.walletconnect.address,
+          })
+
+        // if allowance successful
+        if (t_response) {
+          let _contract = new this.walletconnect.web3.eth.Contract(
+            ABI.SOFINAHUB,
+            this.CONFIG.SOFINAHUB_CONTRACT_ADDRESS
+          )
+
+          let response = await _contract.methods.claim(address).send({
+            from: this.walletconnect.address,
+          })
+
+          if (response) {
+            return true
+          } else {
+            return false
+          }
         } else {
           return false
         }

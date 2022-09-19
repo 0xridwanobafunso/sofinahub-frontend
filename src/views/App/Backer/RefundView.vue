@@ -567,9 +567,10 @@ async function refund(input) {
                     Refund Information
                   </h3>
                   <p class="mt-1 text-sm text-gray-600">
-                    Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                    Exercitationem fugiat voluptatibus tempora, deserunt
-                    obcaecati commodi! Assumenda earum fugiat beatae.
+                    Get your donation refund only when funding goal not met
+                    before the funding deadline. Note that you're going to
+                    <span class="font-bold">sign two transaction</span>
+                    (Allowance and Claim) with a button click.
                   </p>
                 </div>
               </div>

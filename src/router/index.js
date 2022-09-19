@@ -129,13 +129,13 @@ router.beforeEach(async (to, from, next) => {
 
   // check if wallet connect is available in local storage
   // if present. call store.connect()
-  // let walletconnect = JSON.parse(localStorage.getItem('walletconnect'))
+  let walletconnect = JSON.parse(localStorage.getItem('walletconnect'))
 
-  // if (Object.keys(walletconnect).includes('connected')) {
-  //   if (walletconnect.connected) {
-  //     await store.connect()
-  //   }
-  // }
+  if (Object.keys(walletconnect || {}).includes('connected')) {
+    if (walletconnect.connected) {
+      await store.connect()
+    }
+  }
 
   if (
     to.name.startsWith('app-dashboard-backer') ||
