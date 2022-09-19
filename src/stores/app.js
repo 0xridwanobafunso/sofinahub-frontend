@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import WalletConnectProvider from '@walletconnect/web3-provider/dist/umd/index.min.js'
 import Web3 from 'web3/dist/web3.min.js'
+import BN from 'bignumber.js'
+
 import getEstimateSecondsPerBlock from '../assets/getEstimateSecondsPerBlock'
 import getDate from '../assets/getDate'
 
@@ -12,7 +14,8 @@ export const useAppStore = defineStore({
     CONFIG: {
       INFURA_ID: '4885e870e57a4b27b8b80466b0be302d',
       NETWORK: 'ropsten',
-      SOFINAHUB_CONTRACT_ADDRESS: '0xB3877C2CD2d1c91f0330A163A6d18790a0510B33',
+      SOFINAHUB_CONTRACT_ADDRESS: '0xD8eC023Ed9a9245eb31FCeB813b1B5758d8AE02B',
+      // SOFINAHUB_CONTRACT_ADDRESS: '0xB3877C2CD2d1c91f0330A163A6d18790a0510B33',
       // SOFINAHUB_CONTRACT_ADDRESS: '0x7FA8a7b30Dc94E4B68b6e36bD5fFB01f27A134df',
     },
     walletconnect: {
@@ -517,10 +520,12 @@ export const useAppStore = defineStore({
 
         let project = await contract.methods.getProject().call()
 
-        let goalInWei = project[0][0]
-        let roiInWei = (project[0][8] / 100) * goalInWei
+        let goalInWei = new BN(project[0][0])
+        let roiInWei = new BN(new BN(project[0][8]).div(new BN(100))).times(
+          goalInWei
+        )
 
-        let depositInWei = Math.round(goalInWei + roiInWei)
+        let depositInWei = goalInWei.plus(roiInWei)
 
         let _contract = new this.walletconnect.web3.eth.Contract(
           ABI.SOFINAHUB,
