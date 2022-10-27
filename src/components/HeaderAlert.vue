@@ -31,8 +31,8 @@ let visibility = ref(true)
         href="https://goerli.etherscan.io/address/0x26fF6E0c94c2fb0951a6FD23d734CF428C4D4825"
         target="_blank"
         class="font-semibold underline hover:text-blue-800 dark:hover:text-blue-900"
-        >Ethereum Blockchain Network</a
-      >!!! Give it a click if you like 🥰🥰
+        >Goerli Ethereum Test Network</a
+      >!!! Give the smart contract a look 🥰🥰
     </div>
     <button
       type="button"
