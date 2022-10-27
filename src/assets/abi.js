@@ -150,6 +150,19 @@ export const ABI = {
       type: 'event',
     },
     {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: false,
+          internalType: 'string',
+          name: 'message',
+          type: 'string',
+        },
+      ],
+      name: 'LogToggleVerificationSent',
+      type: 'event',
+    },
+    {
       inputs: [],
       name: 'numOfProjects',
       outputs: [
@@ -372,7 +385,13 @@ export const ABI = {
         },
       ],
       name: 'toggleVerify',
-      outputs: [],
+      outputs: [
+        {
+          internalType: 'bool',
+          name: 'successful',
+          type: 'bool',
+        },
+      ],
       stateMutability: 'nonpayable',
       type: 'function',
     },

@@ -13,8 +13,8 @@ export const useAppStore = defineStore({
   state: () => ({
     CONFIG: {
       INFURA_ID: '4885e870e57a4b27b8b80466b0be302d',
-      NETWORK: 'ropsten',
-      SOFINAHUB_CONTRACT_ADDRESS: '0xd8DdDB6a7AdfC782f9976860039908d5D1Ac9e46',
+      NETWORK: 'goerli',
+      SOFINAHUB_CONTRACT_ADDRESS: '0x26fF6E0c94c2fb0951a6FD23d734CF428C4D4825',
     },
     walletconnect: {
       is_connected: false,
@@ -73,11 +73,19 @@ export const useAppStore = defineStore({
     async connect() {
       try {
         this.walletconnect.provider = new WalletConnectProvider({
-          infuraId: this.CONFIG.INFURA_ID,
+          rpc: {
+            5: `https://${this.CONFIG.NETWORK}.infura.io/v3/${this.CONFIG.INFURA_ID}`,
+          },
+          chainId: 5,
+          network: 'goerli',
         })
 
         // show qr code and return wallet accounts
         this.walletconnect.accounts = await this.walletconnect.provider.enable()
+
+        // force to use goerli network
+        this.walletconnect.provider.updateRpcUrl(5)
+
         this.walletconnect.web3 = new Web3(this.walletconnect.provider)
 
         // is connected

@@ -60,7 +60,7 @@ onBeforeMount(async () => {
         </dl>
         <div class="mt-4 sm:mt-0">
           <a
-            :href="`https://ropsten.etherscan.io/address/${route.params.address}`"
+            :href="`https://goerli.etherscan.io/address/${route.params.address}`"
             target="_blank"
             class="font-medium text-indigo-600 hover:text-indigo-500"
             >View on etherscan<span aria-hidden="true"> &rarr;</span></a
@@ -221,7 +221,7 @@ onBeforeMount(async () => {
                         class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
                       >
                         <a
-                          :href="`https://ropsten.etherscan.io/address/${store._project.data[5]}`"
+                          :href="`https://goerli.etherscan.io/address/${store._project.data[5]}`"
                           target="_blank"
                           class="font-medium text-indigo-600 hover:text-indigo-500"
                         >
@@ -303,7 +303,7 @@ onBeforeMount(async () => {
                         class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"
                       >
                         <a
-                          :href="`https://ropsten.etherscan.io/address/${store._project.data[0][14]}`"
+                          :href="`https://goerli.etherscan.io/address/${store._project.data[0][14]}`"
                           target="_blank"
                           class="font-medium text-indigo-600 hover:text-indigo-500"
                         >
@@ -503,7 +503,7 @@ onBeforeMount(async () => {
                       Load this project
                       <a
                         class="font-medium text-indigo-600 hover:text-indigo-500"
-                        :href="`https://ropsten.etherscan.io/address/${store._project.data[0][14]}`"
+                        :href="`https://goerli.etherscan.io/address/${store._project.data[0][14]}`"
                         target="_blank"
                         >reward token smart contract</a
                       >
